@@ -6,12 +6,13 @@
     "bin": {
         "jr": "index.js"
     },
+    "publishConfig": { "registry": "https://npm.pkg.github.com/" },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "author": "Jonathan Sellier",
+    "license": "MIT",
     "dependencies": {
         "node-fetch": "^2.6.1"
     }

@@ -9,7 +9,7 @@ const path = args[0];
 let root;
 
 async function main() {
-    if (path.match(/https?:\/\/[A-Za-z-0-9-]+(\/[a-zA-Z0-9]+\/?)*/)) { //is URL
+    if (path.match(/https?:\/\//)) { //is URL
         const res = await fetch(path);
         root = await res.json();
     } else root = JSON.parse(fs.readFileSync(args[0]).toString());
@@ -30,20 +30,26 @@ async function main() {
 }
 
 function shapeOf(obj, depth = 0) {
-    let indent = '';
-    for (let i = 0; i < depth; i++) indent += '  ';
-    if (obj.length) {
-        if (typeof obj[0] !== 'string') {
-            return (shapeOf(obj[0]) + '[]').replace(/\n/g, '\n' + indent);
-        } else return 'string[]';
+    const indents = depth > 0 ? '  ' : ''; //add an indent in every nested object except the first
+    if(!obj) return (JSON.stringify(null, false, 2).replace(/\"/g, '')).replace(/\\n/g, '\n' + indents);
+    if (typeof obj !== 'object') { //handles string, number, boolean, null etc.
+        return typeof obj;
+    } else { //handles object or array
+        let outObj = {};
+        if (Array.isArray(obj)) { //handles array
+            outObj = parseArray(obj, depth);
+        } else { //handles object
+            for (const prop in obj) {
+                outObj[prop] = shapeOf(obj[prop], depth + 1);
+            }
+        }
+        return (JSON.stringify(outObj, false, 2).replace(/\"/g, '')).replace(/\\n/g, '\n' + indents);
     }
-    let outObj = {};
-    for (let arg in obj) {
-        if (typeof obj[arg] !== 'object') {
-            outObj[arg] = typeof obj[arg];
-        } else outObj[arg] = shapeOf(obj[arg], depth++);
-    }
-    return JSON.stringify(outObj, false, 2).replace(/\\n/g, '\n').replace(/\\"|"/g, '');
+}
+
+function parseArray(arr, depth) {
+    if (arr.length == 0) return '[]'; //empty array
+    else return shapeOf(arr[0], depth) + '[]'; //get the type of the first element
 }
 
 main();
