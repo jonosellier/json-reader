@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const fetch = require('node-fetch');
-const path = require('path');
 const { exit } = require('process');
 
 const args = process.argv.slice(2);
@@ -33,8 +32,8 @@ async function main() {
             });
         if (res) root = await res.json();
     } else {
-        if (fs.existsSync(path)) {
-            root = JSON.parse(fs.readFileSync(args[0]).toString());
+        if (fs.existsSync(fpath)) {
+            root = JSON.parse(fs.readFileSync(fpath).toString());
         } else {
 
         }
