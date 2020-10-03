@@ -68,7 +68,7 @@ function prettyPrint(str){
 
 function shapeOf(obj, depth = 1) {
     const indents = depth > 0 ? '  ' : ''; //add an indent in every nested object except the first
-    if (!obj) return 'null';
+    if (obj === null || obj === undefined) return 'null';
     if (typeof obj !== 'object') { //handles string, number, boolean, null etc.
         return typeof obj;
     } else { //handles object or array

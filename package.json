@@ -16,6 +16,7 @@
     "author": "Jonathan Sellier",
     "license": "MIT",
     "dependencies": {
+        "chalk": "^4.1.0",
         "node-fetch": "^2.6.1"
     }
 }
