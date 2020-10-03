@@ -7,6 +7,9 @@ const { exit } = require('process');
 const args = process.argv.slice(2);
 const jsQueryString = args.slice(1).join(' ');
 const fpath = args[0];
+
+const chalk = require('chalk');
+
 let root;
 
 async function main() {
@@ -43,7 +46,7 @@ async function main() {
     let myObj;
 
     if (jsQueryString.toLowerCase() === 'shape') {
-        console.log(shapeOf(root));
+        console.log(prettyPrint(shapeOf(root)));
     } else {
         myObj = eval(jsQueryString);
         if (!myObj) {
@@ -54,18 +57,29 @@ async function main() {
     }
 }
 
+function prettyPrint(str){
+    const type = /(string|number|boolean)/g;
+    const nullish = /(null|undefined)/g
+    const bracket = /({|}|\[|\])/g;
+    const prop = /([a-zA-Z-_$][a-zA-Z0-9-_$]*:)/g;
+    
+    return str.replace(bracket, chalk.blue('$&')).replace(type, chalk.yellowBright('$&')).replace(prop, chalk.whiteBright('$&')).replace(nullish, chalk.red('$&'));
+}
+
 function shapeOf(obj, depth = 1) {
     const indents = depth > 0 ? '  ' : ''; //add an indent in every nested object except the first
+    if (!obj) return 'null';
     if (typeof obj !== 'object') { //handles string, number, boolean, null etc.
         return typeof obj;
     } else { //handles object or array
         let outObj = {};
         if (Array.isArray(obj)) { //handles array
             if (!obj[0]) return '[]';
+            else if(typeof obj[0] !== 'object') return typeof obj[0]+'[]';
             for (const prop in obj[0]) {
                 outObj[prop] = shapeOf(obj[0][prop], 1);
             }
-            return (JSON.stringify(outObj, false, 2).replace(/\"/g, '')).replace(/\\n/g, ' ' + depth + '\n' + indents) + '[]';
+            return (JSON.stringify(outObj, false, 2).replace(/\"/g, '')).replace(/\\n/g, '\n' + indents) + '[]';
         } else { //handles object
             for (const prop in obj) {
                 outObj[prop] = shapeOf(obj[prop], 1);
@@ -73,11 +87,6 @@ function shapeOf(obj, depth = 1) {
         }
         return (JSON.stringify(outObj, false, 2).replace(/\"/g, '')).replace(/\\n/g, '\n' + indents);
     }
-}
-
-function parseArray(arr, depth) {
-    if (arr.length == 0) return '[]'; //empty array
-    else return shapeOf(arr[0], 0) + '[]'; //get the type of the first element
 }
 
 main();
